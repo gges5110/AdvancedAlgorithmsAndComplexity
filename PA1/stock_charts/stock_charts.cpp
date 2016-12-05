@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm> // std::min
 #include <memory>
 #include <string>
-#include <algorithm> // std::min
 
 using std::vector;
 using std::cin;
@@ -80,11 +80,11 @@ private:
     }
 
 public:
-
     void read_data(const vector<vector<int>> &_C) {
         C = _C;
         T = _C;
         nodes = C.size();
+
     }
 
     void read_data(const string &filename) {
@@ -128,104 +128,102 @@ public:
                 }
             }
         }
+
         return F;
     }
 };
 
-class MaxMatching {
-public:
-    void Solve(const string &filename) {
-        vector<vector<bool>> adj_matrix = ReadData(filename);
-        vector<int> matching = FindMatching(adj_matrix);
-        WriteResponse(matching);
-    }
+class StockCharts {
+ public:
+  void Solve(const string & filename) {
+    vector<vector<int>> stock_data = ReadData(filename);
+    int result = MinCharts(stock_data);
+    WriteResponse(result);
+  }
 
-private:
-     vector<vector<bool>> ReadData(const string &filename) {
-         std::ifstream fs(filename);
+ private:
+  vector<vector<int>> ReadData(const string & filename) {
+      std::ifstream fs(filename);
+      int num_stocks, num_points;
+      fs >> num_stocks >> num_points;
+      vector<vector<int>> stock_data(num_stocks, vector<int>(num_points));
+      for (int i = 0; i < num_stocks; ++i)
+        for (int j = 0; j < num_points; ++j) {
+        fs >> stock_data[i][j];
+      }
+    return stock_data;
+  }
 
-        int num_flights, num_crews;
-        fs >> num_flights >> num_crews;
-        vector<vector<bool>> adj_matrix(num_flights, vector<bool>(num_crews));
-        for (int i = 0; i < num_flights; ++i) {
-            for (int j = 0; j < num_crews; ++j) {
-                int bit;
-                fs >> bit;
-                adj_matrix[i][j] = (bit == 1);
+  void WriteResponse(int result) {
+    cout << result << "\n";
+  }
+
+  int MinCharts(const vector<vector<int>>& stock_data) {
+    // Replace this incorrect greedy algorithm with an
+    // algorithm that correctly finds the minimum number
+    // of charts on which we can put all the stock data
+    // without intersections of graphs on one chart.
+
+    int num_stocks = stock_data.size();
+
+    // Vector of charts; each chart is a vector of indices of individual stocks.
+    vector<vector<bool>> charts(num_stocks, vector<bool>(num_stocks, false));
+    for (int i = 0; i < num_stocks; ++i) {
+        for (int j = 0; j < num_stocks; ++j) {
+            if (i != j && compare(stock_data[i], stock_data[j])) {
+                charts[i][j] = true;
             }
         }
-
-        return adj_matrix;
     }
 
-    vector<int> FindMatching(const vector<vector<bool>>& adj_matrix) {
-        int num_flights = adj_matrix.size();
-        int num_crews = adj_matrix[0].size();
-
-        vector<vector<int>> C = convertMatrix(adj_matrix);
-        FlowGraph graph;
-        graph.read_data(C);
-        vector<vector<int>> F = graph.max_flow(0, graph.size() - 1);
-
-        return parseMatrix(F, num_flights, num_crews);
+    vector<vector<int>> C = convertMatrix(charts);
+    FlowGraph graph;
+    graph.read_data(C);
+    vector<vector<int>> F = graph.max_flow(0, graph.size() - 1);
+    int n = 0;
+    for (int i = 0; i < F.size(); ++i) {
+        if (F[0][i] != 0) {
+            n++;
+        }
     }
 
-    void WriteResponse(const vector<int>& matching) {
-        for (int i = 0; i < matching.size(); ++i) {
-            if (i > 0) {
-                cout << " ";
-            }
-            if (matching[i] == -1) {
-                cout << "-1";
-            } else {
-                cout << (matching[i] + 1);
-            }
-        }
-        cout << "\n";
-    }
+    return num_stocks - n;
+  }
 
-    vector<vector<int>> convertMatrix(const vector<vector<bool>> &adj_matrix) {
-        int num_flights = adj_matrix.size();
-        int num_crews = adj_matrix[0].size();
-        int nodes = num_flights + num_crews + 2;
+  bool compare(const vector<int>& stock1, const vector<int>& stock2) {
+    for (int i = 0; i < stock1.size(); ++i)
+      if (stock1[i] >= stock2[i])
+        return false;
+    return true;
+  }
 
-        // node 0 is source, node nodes is sink.
-        vector<vector<int>> C(nodes, vector<int>(nodes));
+  vector<vector<int>> convertMatrix(const vector<vector<bool>> &charts) {
+      int num_stocks = charts.size();
+      int nodes = num_stocks * 2 + 2;
 
-        // Connect source to all nodes on the left.
-        for (int i = 1; i < num_crews + 1; ++i) {
-            C[0][i] = 1;
-        }
+      // node 0 is source, node nodes is sink.
+      vector<vector<int>> C(nodes, vector<int>(nodes));
 
-        // Connect all nodes on the right to sink.
-        for (int i = num_crews + 1; i < nodes - 1; ++i) {
-            C[i][nodes - 1] = 1;
-        }
+      // Connect source to all nodes on the left.
+      for (int i = 1; i < num_stocks + 1; ++i) {
+          C[0][i] = 1;
+      }
 
-        for (int i = 0; i < num_flights; ++i) {
-            for (int j = 0; j < num_crews; ++j) {
-                if (adj_matrix[i][j]) {
-                    C[j + 1][num_crews + i + 1] = 1;
-                }
-            }
-        }
+      // Connect all nodes on the right to sink.
+      for (int i = num_stocks + 1; i < nodes - 1; ++i) {
+          C[i][nodes - 1] = 1;
+      }
 
-        return C;
-    }
+      for (int i = 0; i < num_stocks; ++i) {
+          for (int j = 0; j < num_stocks; ++j) {
+              if (charts[i][j]) {
+                  C[j + 1][num_stocks + i + 1] = 1;
+              }
+          }
+      }
 
-    vector<int> parseMatrix(vector<vector<int>> F, int num_flights, int num_crews) {
-        vector<int> matching(num_flights, -1);
-        for (int i = 1; i < num_crews + 1; ++i) {
-            if (F[0][i] == 1) {
-                int pos = std::find(F[i].begin(), F[i].end(), 1) - F[i].begin();
-                if (pos < F[i].size()) {
-                    matching[pos - num_crews - 1] = i;
-                }
-            }
-        }
-
-        return matching;
-    }
+      return C;
+  }
 };
 
 int main(int argc, char **argv) {
@@ -234,8 +232,8 @@ int main(int argc, char **argv) {
     } else {
         std::ios_base::sync_with_stdio(false);
         string filename(argv[1]);
-        MaxMatching max_matching;
-        max_matching.Solve(filename);
+        StockCharts stock_charts;
+        stock_charts.Solve(filename);
         return 0;
     }
 }
