@@ -175,11 +175,8 @@ private:
             if (i > 0) {
                 cout << " ";
             }
-            if (matching[i] == -1) {
-                cout << "-1";
-            } else {
-                cout << (matching[i] + 1);
-            }
+
+            cout << (matching[i]);            
         }
         cout << "\n";
     }
