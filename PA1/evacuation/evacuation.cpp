@@ -96,7 +96,7 @@ public:
             T[from - 1][to - 1] = capacity;
         }
 
-        // printMatrix(C);
+        printMatrix(C);
     }
 
     int size() const {
