@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+import build
 from os import walk
 from threading import Timer
 # import threading
@@ -24,7 +25,7 @@ def main():
     # print 'Number of arguments:', len(sys.argv), 'arguments.'
     # print 'Argument List:', str(sys.argv)
     if len(sys.argv) != 2:
-        print ("Please provide the PA# you want to test as an argument.")
+        print ("Please provide the module you want to test as an argument (e.g. 'PA1/evacuation')")
         sys.exit(0)
     else:
         module = str(sys.argv[1])
@@ -60,8 +61,16 @@ def main():
                 break
         break
     if exe_filename == "":
-        print ("No executables found. Please compile first.")
-        sys.exit(0)
+        try:
+            input_build = input("No executables found. Build? (Y/n)")
+        except ValueError:
+            print ("Error value, exiting program.")
+            sys.exit(0)
+        if input_build == 'Y' or input_build == 'y':
+            exe_filename = build.build()             
+        else:
+            print ("Did not build.")
+
     # print(exe_filename)
 
     # For each pair of tests
