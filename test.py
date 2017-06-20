@@ -67,7 +67,7 @@ def main():
             print ("Error value, exiting program.")
             sys.exit(0)
         if input_build == 'Y' or input_build == 'y':
-            exe_filename = build.build()             
+            exe_filename = build.build()
         else:
             print ("Did not build.")
 
