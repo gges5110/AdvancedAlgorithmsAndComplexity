@@ -59,46 +59,12 @@ private:
         return 0;
     }
 
-    void printPath(const vector<int> &P, int from, int to) const {
-        int v = to;
-        cout << "Print path." << endl;
-        while (v != from) {
-            cout << v << " <- ";
-            v = P[v];
-        }
-        cout << v << endl;
-    }
-
-    void printMatrix(const vector<vector<int>> &C) const {
-        for (int i = 0; i < nodes; ++i) {
-            for (int j = 0; j < nodes; ++j) {
-                cout << C[i][j] << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
-
 public:
 
     void read_data(const vector<vector<int>> &_C) {
         C = _C;
         T = _C;
         nodes = C.size();
-    }
-
-    void read_data(const string &filename) {
-        std::ifstream fs(filename);
-        fs >> nodes;
-        initializeMatrix();
-
-        int edges; fs >> edges;
-        for (int i = 0; i < edges; ++i) {
-            int from, to, capacity;
-            fs >> from >> to >> capacity;
-            C[from - 1][to - 1] = capacity;
-            T[from - 1][to - 1] = capacity;
-        }
     }
 
     int size() const {
@@ -176,7 +142,7 @@ private:
                 cout << " ";
             }
 
-            cout << (matching[i]);            
+            cout << (matching[i]);
         }
         cout << "\n";
     }
