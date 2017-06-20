@@ -12,7 +12,10 @@ def build():
     sub_module = module.split("/")[1]
 
     command = "g++ -o " + module + "/" + sub_module + ".exe " + module + "/" + sub_module + ".cpp -std=c++11"
-    p = subprocess.Popen(["exec " + command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p = subprocess.Popen(["exec " + command], shell=True, stderr=subprocess.STDOUT)
+    p.wait()
+
+    return sub_module + ".exe"
 
 if __name__ == "__main__":
     build()
