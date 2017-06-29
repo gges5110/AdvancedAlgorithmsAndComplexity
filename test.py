@@ -45,6 +45,10 @@ def main():
         print ("No tests found.")
         sys.exit(0)
 
+    if module == "PA1/airline_crews":
+        print ("test with airline_crew_test.py")
+        sys.exit(0)
+
     # TODO: compile code if executable is not there
     print ("")
     print (printWithColor(bcolors.OKGREEN, "[==========] ") + str(len(f)) + " test cases.")
