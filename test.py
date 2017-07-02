@@ -108,6 +108,7 @@ def main():
             with open(output_filename) as ff:
                 content = ff.readlines()
 
+            if line.decode("utf-8").rstrip() == content[0].rstrip():
                 print (printWithColor(bcolors.OKGREEN, "[       OK ] ") + module + "/" + test_name + " (" + str(int(ts_total * 1000)) + " ms)")
                 passed = passed + 1
             else:
