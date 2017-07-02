@@ -4,7 +4,7 @@
 #include <fstream>
 
 const double EPS = 1e-6;
-const int PRECISION = 20;
+const int PRECISION = 6;
 
 typedef std::vector<double> Column;
 typedef std::vector<double> Row;
@@ -53,7 +53,7 @@ Position SelectPivotElement(
   Position pivot_element(0, 0);
   while (used_rows[pivot_element.row])
       ++pivot_element.row;
-  while (used_columns[pivot_element.column])
+  while (used_columns[pivot_element.column] || a[pivot_element.row][pivot_element.column] == 0)
       ++pivot_element.column;
   return pivot_element;
 }
@@ -65,15 +65,17 @@ void SwapLines(Matrix &a, Column &b, std::vector <bool> &used_rows, Position &pi
   pivot_element.row = pivot_element.column;
 }
 
-void SubtractLines(Matrix &a, Column &b, int row1, int row2) {
-  b[row2] -= b[row1];
-  for (int i = 0; i < a[row2].size(); ++i) {
-    a[row2][i] -= a[row1][i];
+void SubtractLines(Matrix &a, Column &b, const Position &pivot_element, int row) {
+  if (a[row][pivot_element.column] != 0) {
+    double factor = a[row][pivot_element.column] / a[pivot_element.row][pivot_element.column];
+    b[row] -= b[pivot_element.row] * factor;
+    for (int i = 0; i < a[row].size(); ++i) {
+      a[row][i] -= a[pivot_element.row][i] * factor;
+    }
   }
 }
 
-void ProcessPivotElement(Matrix &a, Column &b, const Position &pivot_element) {
-    // Write your code here
+void ProcessPivotElement(Matrix &a, Column &b, const Position &pivot_element) {    
     // Rescale to make pivot 1
     double scale = a[pivot_element.row][pivot_element.column];
     for (int column = 0; column < a[pivot_element.row].size(); ++column) {
@@ -83,7 +85,7 @@ void ProcessPivotElement(Matrix &a, Column &b, const Position &pivot_element) {
     // Subtract row from others to make other entries in the same column 0.
     for (int row = 0; row < a.size(); ++row) {
       if (row != pivot_element.row) {
-        SubtractLines(a, b, pivot_element.row, row);
+        SubtractLines(a, b, pivot_element, row);
       }
     }
 }
@@ -91,6 +93,15 @@ void ProcessPivotElement(Matrix &a, Column &b, const Position &pivot_element) {
 void MarkPivotElementUsed(const Position &pivot_element, std::vector <bool> &used_rows, std::vector <bool> &used_columns) {
   used_rows[pivot_element.row] = true;
   used_columns[pivot_element.column] = true;
+}
+
+void printDebug(const Matrix &a, const Column &b) {
+  for (int i = 0; i < a.size(); ++i) {
+    for (double element: a[i]) {
+      std::cout << element << " ";
+    }
+    std::cout << "| " << b[i] << std::endl;
+  }
 }
 
 Column SolveEquation(Equation equation) {
@@ -105,6 +116,8 @@ Column SolveEquation(Equation equation) {
     SwapLines(a, b, used_rows, pivot_element);
     ProcessPivotElement(a, b, pivot_element);
     MarkPivotElementUsed(pivot_element, used_rows, used_columns);
+    // std::cout << "PrintDebug" << std::endl;
+    // printDebug(a, b);
   }
 
   return b;
@@ -113,8 +126,11 @@ Column SolveEquation(Equation equation) {
 void PrintColumn(const Column &column) {
   int size = column.size();
   std::cout.precision(PRECISION);
-  for (int row = 0; row < size; ++row)
-    std::cout << column[row] << std::endl;
+  std::cout << std::fixed;
+  for (int row = 0; row < size; ++row) {
+    std::cout << column[row] << " ";
+  }
+  std::cout << std::endl;
 }
 
 int main(int argc, char *argv[]) {
