@@ -101,20 +101,31 @@ def main():
         ts_total = time.time() - ts_start
         total_time = total_time + ts_total
 
-        for line in p.stdout.readlines():
+        for idx, line in enumerate(p.stdout.readlines()):
             content = ""
             input_filename = f[i]
             output_filename = module + "/tests/output" + input_filename[5:]
-            with open(output_filename) as ff:
-                content = ff.readlines()
+            try:
+                with open(output_filename) as ff:
+                    content = ff.readlines()
+                    # print (content)
+            except FileNotFoundError:
+                print (printWithColor(bcolors.FAIL, "[  FAILED  ]"))
+                print ("Output test file not found.")
+                failed.append(test_name)
+                continue
 
-            if line.decode("utf-8").rstrip() == content[0].rstrip():
+            if idx >= len(content):
+                break
+
+            if line.decode("utf-8")  == content[idx]:
                 print (printWithColor(bcolors.OKGREEN, "[       OK ] ") + module + "/" + test_name + " (" + str(int(ts_total * 1000)) + " ms)")
                 passed = passed + 1
             else:
-                print (printWithColor(bcolors.FAIL, "Failure "))
-                print ("Expected: " + printWithColor(bcolors.OKGREEN, content[0].rstrip()))
-                print ("Actual:   " + printWithColor(bcolors.FAIL, line.decode("utf-8").rstrip()))
+                print ("Line " + str(idx + 1) + ": Failure")
+                print ("  Actual: " + printWithColor(bcolors.FAIL, line.decode("utf-8").strip()))
+                print ("Expected: " + printWithColor(bcolors.OKGREEN, content[idx].rstrip()))
+                print (printWithColor(bcolors.FAIL, "[  FAILED  ] ") + module + "/" + test_name)
                 failed.append(test_name)
 
     print ("")

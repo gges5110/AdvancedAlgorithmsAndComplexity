@@ -10,7 +10,7 @@ def rename(directory):
         elif not filename.startswith('input_') and '.' not in filename:
             # rename to input_xxx.txt
             os.rename(directory + '/tests/' + filename, directory + "/tests/input_" + filename + ".txt")
-            print (filename + " should be renamed to input_xxx.txt")
+            print (filename + " is renamed to input_" + filename + ".txt")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
