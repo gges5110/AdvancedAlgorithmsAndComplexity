@@ -30,6 +30,10 @@ def main():
     else:
         module = str(sys.argv[1])
 
+     # Removing the trailing slash
+    if module[len(module) - 1] == '/':
+        module = module[:len(module) - 1]
+
     # Get the file list in test directory
     f = []
     # test_folder = raw_input("test folder?")
@@ -46,7 +50,7 @@ def main():
         sys.exit(0)
 
     if module == "PA1/airline_crews":
-        print ("test with airline_crew_test.py")
+        print ("Please run test with airline_crew_test.py")
         sys.exit(0)
 
     # TODO: compile code if executable is not there
@@ -104,13 +108,12 @@ def main():
             with open(output_filename) as ff:
                 content = ff.readlines()
 
-            if line.decode("utf-8")  == content[0]:
                 print (printWithColor(bcolors.OKGREEN, "[       OK ] ") + module + "/" + test_name + " (" + str(int(ts_total * 1000)) + " ms)")
                 passed = passed + 1
             else:
                 print (printWithColor(bcolors.FAIL, "Failure "))
                 print ("Expected: " + printWithColor(bcolors.OKGREEN, content[0].rstrip()))
-                print ("Actual:   " + printWithColor(bcolors.FAIL, line.decode("utf-8")))
+                print ("Actual:   " + printWithColor(bcolors.FAIL, line.decode("utf-8").rstrip()))
                 failed.append(test_name)
 
     print ("")
